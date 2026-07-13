@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TA Weekly Tracker — By Role</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB;--surf:#FFF;--surf2:#EEF1F9;--surf3:#E3E8F5;
+  --bdr:#DEE3F0;--bdr2:#C7CEE3;
+  --ink:#141A2B;--ink2:#495269;--ink3:#8A93AA;
+  --blue:#2B5CE0;--blue-l:#E9EFFE;--blue-d:#0C3A9C;
+  --teal:#0B8F6B;--teal-l:#E4F6EF;--teal-d:#075C46;
+  --amber:#B8720A;--amber-l:#FDF1DD;--amber-d:#7A4A05;
+  --red:#C4372F;--red-l:#FCEBE9;--red-d:#821F1A;
+  --purple:#6B3FC9;--purple-l:#EFE9FC;--purple-d:#3C2884;
+  --font:'Inter',sans-serif;--mono:'IBM Plex Mono',monospace;
+  --r:10px;--rs:6px;--sh:0 1px 3px rgba(20,26,43,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+.shell{max-width:1240px;margin:0 auto;padding:24px 28px 60px}
+
+.top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:16px}
+.top h1{font-size:20px;font-weight:700;letter-spacing:-0.02em}
+.top .sub{font-size:12.5px;color:var(--ink3);margin-top:3px}
+.live-pill{font-family:var(--mono);font-size:11px;color:var(--teal-d);background:var(--teal-l);border:1px solid #A9E1CC;padding:5px 10px;border-radius:var(--rs);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.live-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+.role-bar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;box-shadow:var(--sh)}
+.role-bar select{border:1px solid var(--bdr2);border-radius:var(--rs);padding:8px 10px;font-size:13.5px;font-weight:600;background:var(--surf);min-width:260px;color:var(--ink)}
+.meta-chip{display:flex;flex-direction:column;gap:2px}
+.meta-chip .l{font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.meta-chip .v{font-size:13.5px;font-weight:600}
+.meta-sep{width:1px;height:30px;background:var(--bdr)}
+
+.status-banner{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--rs);font-size:13px;margin-bottom:16px;border:1px solid transparent;line-height:1.5}
+.status-ok{background:var(--blue-l);color:var(--blue-d);border-color:#C7D8FA}
+.status-breach{background:var(--red-l);color:var(--red-d);border-color:#F5C6C4}
+.status-banner b{font-weight:700}
+.status-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+.rates-note{font-size:11.5px;color:var(--amber-d);background:var(--amber-l);border:1px solid #F0D9A8;border-radius:var(--rs);padding:9px 14px;margin-bottom:18px;line-height:1.6}
+.rates-note code{background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11px}
+
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surf);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+th{text-align:center;padding:12px 10px;font-weight:600;font-size:10.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;background:var(--surf2);border-bottom:1px solid var(--bdr)}
+th:nth-child(1),th:nth-child(2){text-align:left}
+td{padding:13px 10px;border-bottom:1px solid var(--bdr);vertical-align:middle;text-align:center}
+td:nth-child(1),td:nth-child(2){text-align:left}
+tr:last-child td{border-bottom:none}
+tr.now-row td{background:#F4F7FF}
+tr.now-row{box-shadow:inset 3px 0 0 var(--blue)}
+.wk-badge{display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px;background:var(--blue-l);color:var(--blue-d)}
+.wk-badge.past{background:var(--surf3);color:var(--ink3)}
+.date-range{font-weight:500}
+.date-days{font-size:11px;color:var(--ink3);margin-top:2px}
+.now-tag{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.03em;color:var(--teal-d);background:var(--teal-l);border:1px solid #A9E1CC;padding:2px 8px;border-radius:20px;margin-left:7px;vertical-align:middle}
+.est-val{font-family:var(--mono);font-weight:500;font-size:13.5px;color:var(--ink2)}
+.act-val{font-family:var(--mono);font-weight:700;font-size:14.5px}
+.act-dash{font-family:var(--mono);color:var(--bdr2);font-size:13px}
+.act-ahead{color:var(--teal-d)}
+.act-behind{color:var(--red-d)}
+.col-sep{border-left:1px solid var(--bdr)}
+.status-pill{display:inline-block;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap;letter-spacing:.01em}
+.status-pill-ok{background:var(--teal-l);color:var(--teal-d)}
+.status-pill-warn{background:var(--amber-l);color:var(--amber-d)}
+.status-pill-bad{background:var(--red-l);color:var(--red-d)}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--ink3);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+.note{font-size:12px;color:var(--ink3);padding:10px 14px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rs);margin-top:14px;line-height:1.5}
+.note b{color:var(--ink2)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top">
+    <div>
+      <h1>TA weekly tracker — by role</h1>
+      <div class="sub">Reverse-math weekly targets vs. actuals pulled live from Workable</div>
+    </div>
+    <div class="live-pill"><span class="dot"></span>Actuals live from Workable</div>
+  </div>
+
+  <div class="role-bar">
+    <select id="roleSelect"></select>
+    <div class="meta-sep"></div>
+    <div class="meta-chip"><span class="l">Recruiter</span><span class="v" id="metaRecruiter">—</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-chip"><span class="l">Start date</span><span class="v" id="metaStart">—</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-chip"><span class="l">TAT</span><span class="v" id="metaTat">—</span></div>
+    <div class="meta-sep"></div>
+    <div class="meta-chip"><span class="l">Target hires</span><span class="v" id="metaTarget">1</span></div>
+  </div>
+
+  <div id="statusBanner"></div>
+
+
+  <table id="weekTable"></table>
+
+  <div class="legend">
+    <span><i style="background:var(--teal)"></i>On track — met or beat every estimate that week</span>
+    <span><i style="background:var(--amber)"></i>Slipping — missed one metric</span>
+    <span><i style="background:var(--red)"></i>Off track — missed two or more metrics</span>
+  </div>
+
+
+
+</div>
+
+<script>
+/* ============================================================
+   ROLE DATA — recruiter, TAT and start date sourced from the
+   TA tracker record for each role. Rates are placeholder
+   assumptions per role until the real conversion-rate sheet
+   is loaded (swap the `rates` object per role when ready).
+   Actual counts pulled live from Workable candidate snapshot.
+   ============================================================ */
+const ROLES = [
+  {
+    name: 'Backend Engineering Lead / Staff',
+    recruiter: 'Animesh Mondal',
+    startDate: '2026-03-20',
+    tat: 45,
+    targetHires: 1,
+    rates: { r1: 0.40, r2: 0.45, offerAccept: 0.65 },
+    // Sample weekly actuals — one value per week (W1..W6)
+    weeklyActual: {
+      r1:     [2, 3, 2, 1, 1, 1],
+      r2:     [0, 1, 1, 1, 0, 0],
+      offers: [0, 0, 0, 0, 1, 0],
+      hires:  [0, 0, 0, 0, 0, 0],
+    }
+  },
+  {
+    name: 'Senior Admin Executive',
+    recruiter: 'Harikrishna MC, Keerthana Vanarasa',
+    startDate: '2026-02-16',
+    tat: 45,
+    targetHires: 1,
+    rates: { r1: 0.55, r2: 0.60, offerAccept: 0.75 },
+    weeklyActual: {
+      r1:     [2, 2, 2, 1, 0, 0],
+      r2:     [0, 1, 1, 0, 0, 0],
+      offers: [0, 0, 0, 0, 0, 0],
+      hires:  [0, 0, 0, 0, 0, 0],
+    }
+  },
+  {
+    name: 'Senior HRBP',
+    recruiter: 'Harikrishna MC',
+    startDate: '2026-05-19',
+    tat: 45,
+    targetHires: 1,
+    rates: { r1: 0.45, r2: 0.50, offerAccept: 0.70 },
+    weeklyActual: {
+      r1:     [1, 1, 0, 0, 0, 0],
+      r2:     [0, 0, 0, 0, 0, 0],
+      offers: [0, 0, 0, 0, 0, 0],
+      hires:  [0, 0, 0, 0, 0, 0],
+    }
+  },
+];
+/* ============================================================ */
+
+const TODAY = new Date('2026-07-08T00:00:00');
+
+function addDays(dateStr, days){
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function fmtDate(d){
+  return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+}
+function daysBetween(a, b){
+  return Math.round((b - a) / 86400000);
+}
+
+// Largest-remainder distribution so weekly values sum exactly to total
+function distributeWeighted(total, weights){
+  const raw = weights.map(w => total * w);
+  const floors = raw.map(Math.floor);
+  let remainder = total - floors.reduce((a,b)=>a+b, 0);
+  const fracIdx = raw.map((r,i)=>({ frac: r - Math.floor(r), i })).sort((a,b)=>b.frac - a.frac);
+  const result = floors.slice();
+  for(let k=0; k<remainder; k++){ result[fracIdx[k].i] += 1; }
+  return result;
+}
+
+const R1_W = [0.25, 0.30, 0.25, 0.12, 0.05, 0.03];
+const R2_W = [0,    0.15, 0.30, 0.30, 0.20, 0.05];
+const OF_W = [0,    0,    0,    0.20, 0.45, 0.35];
+const HI_W = [0,    0,    0,    0.10, 0.40, 0.50];
+
+function computeFunnel(role){
+  const { r1, r2, offerAccept } = role.rates;
+  const offersNeeded = Math.ceil(role.targetHires / offerAccept);
+  const totalR2 = Math.ceil(offersNeeded / r2);
+  const totalR1 = Math.ceil(totalR2 / r1);
+  return { totalR1, totalR2, offersNeeded, hires: role.targetHires };
+}
+
+function buildWeeks(role){
+  const numWeeks = 6;
+  const baseLen = Math.floor(role.tat / numWeeks);
+  const extra = role.tat - baseLen * numWeeks;
+  const weeks = [];
+  let cursor = 0;
+  for(let i=0;i<numWeeks;i++){
+    const len = baseLen + (i===numWeeks-1 ? extra : 0);
+    const start = addDays(role.startDate, cursor);
+    const end = addDays(role.startDate, cursor + len - 1);
+    weeks.push({ wk:i+1, start, end, len });
+    cursor += len;
+  }
+  return weeks;
+}
+
+function currentWeekIndex(weeks, startDate){
+  const daysSince = daysBetween(new Date(startDate+'T00:00:00'), TODAY);
+  if(daysSince < 0) return -1; // not started yet
+  const idx = weeks.findIndex(w => daysSince >= daysBetween(new Date(weeks[0].start), w.start) && daysSince <= daysBetween(new Date(weeks[0].start), w.end));
+  return idx; // -1 if beyond all weeks (breached)
+}
+
+// Where actuals should attach: the real current week if we're inside
+// the TAT window, otherwise the final week (breached — "as of today").
+function effectiveActualIndex(weeks, startDate){
+  const idx = currentWeekIndex(weeks, startDate);
+  return idx === -1 ? weeks.length - 1 : idx;
+}
+
+function renderRoleSelect(){
+  const sel = document.getElementById('roleSelect');
+  sel.innerHTML = ROLES.map((r,i)=>`<option value="${i}">${r.name}</option>`).join('');
+  sel.addEventListener('change', () => render(parseInt(sel.value)));
+}
+
+function render(idx){
+  const role = ROLES[idx];
+  const funnel = computeFunnel(role);
+  const weeks = buildWeeks(role);
+  const totalDays = daysBetween(new Date(role.startDate+'T00:00:00'), TODAY);
+  const curIdx = currentWeekIndex(weeks, role.startDate);
+  const breached = totalDays > role.tat;
+
+  document.getElementById('metaRecruiter').textContent = role.recruiter;
+  document.getElementById('metaStart').textContent = new Date(role.startDate+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  document.getElementById('metaTat').textContent = role.tat + ' days';
+  document.getElementById('metaTarget').textContent = role.targetHires;
+
+  const banner = document.getElementById('statusBanner');
+  if(breached){
+    banner.innerHTML = `<div class="status-banner status-breach"><span class="status-dot"></span><span><b>TAT breached</b> by ${totalDays - role.tat} day${totalDays-role.tat!==1?'s':''} — started ${fmtDate(new Date(role.startDate+'T00:00:00'))}, ${role.tat}-day window ended ${fmtDate(weeks[weeks.length-1].end)}.</span></div>`;
+  } else {
+    banner.innerHTML = `<div class="status-banner status-ok"><span class="status-dot"></span><span>Within TAT — currently in <b>week ${curIdx+1} of ${weeks.length}</b>, ${role.tat - totalDays} day${role.tat-totalDays!==1?'s':''} left.</span></div>`;
+  }
+
+  const r1Est = distributeWeighted(funnel.totalR1, R1_W);
+  const r2Est = distributeWeighted(funnel.totalR2, R2_W);
+  const ofEst = distributeWeighted(funnel.offersNeeded, OF_W);
+  const hiEst = distributeWeighted(funnel.hires, HI_W);
+
+  const headers = ['Wk','Date range','R1 est.','R1 actual','R2 est.','R2 actual','Offers est.','Offers act.','Hires est.','Hires act.','Status'];
+
+  function actCell(estVal, actVal){
+    if(actVal === null || actVal === undefined) return `<span class="act-dash">—</span>`;
+    const cls = actVal >= estVal ? 'act-ahead' : 'act-behind';
+    return `<span class="act-val ${cls}">${actVal}</span>`;
+  }
+
+  function weekStatus(estimates, actuals){
+    const behindCount = estimates.reduce((n, est, k) => n + (actuals[k] < est ? 1 : 0), 0);
+    if(behindCount === 0) return { label: 'On track', cls: 'status-pill-ok' };
+    if(behindCount <= 1) return { label: 'Slipping', cls: 'status-pill-warn' };
+    return { label: 'Off track', cls: 'status-pill-bad' };
+  }
+
+  const wa = role.weeklyActual;
+  const rows = weeks.map((w,i)=>{
+    const isNow = i === curIdx || (breached && i === weeks.length-1);
+    const isPast = curIdx >= 0 ? i < curIdx : i < weeks.length-1;
+    const tag = isNow ? (breached ? 'LATEST' : 'NOW') : '';
+    const status = weekStatus(
+      [r1Est[i], r2Est[i], ofEst[i], hiEst[i]],
+      [wa.r1[i], wa.r2[i], wa.offers[i], wa.hires[i]]
+    );
+    return `
+      <tr class="${isNow?'now-row':''}">
+        <td><span class="wk-badge ${isPast&&!isNow?'past':''}">W${w.wk}</span></td>
+        <td>
+          <div class="date-range">${fmtDate(w.start)} – ${fmtDate(w.end)}${tag?`<span class="now-tag">${tag}</span>`:''}</div>
+          <div class="date-days">${w.len} days</div>
+        </td>
+        <td class="est-val">${r1Est[i]}</td>
+        <td class="col-sep">${actCell(r1Est[i], wa.r1[i])}</td>
+        <td class="est-val">${r2Est[i]}</td>
+        <td class="col-sep">${actCell(r2Est[i], wa.r2[i])}</td>
+        <td class="est-val">${ofEst[i]}</td>
+        <td class="col-sep">${actCell(ofEst[i], wa.offers[i])}</td>
+        <td class="est-val">${hiEst[i]}</td>
+        <td class="col-sep">${actCell(hiEst[i], wa.hires[i])}</td>
+        <td class="col-sep"><span class="status-pill ${status.cls}">${status.label}</span></td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('weekTable').innerHTML =
+    `<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>${rows}`;
+}
+
+renderRoleSelect();
+render(0);
+</script>
+</body>
+</html>
